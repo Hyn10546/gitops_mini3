@@ -1,44 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-deploy
   labels:
-    app: nginx
+    app: web
+  name: web
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nginx
+      app: web
   template:
     metadata:
       labels:
-        app: nginx
+        app: web
     spec:
       containers:
-      - name: nginx
-        image: public.ecr.aws/g1o9h9r6/mini3/containimage:nginx2-2
+      - image: public.ecr.aws/g1o9h9r6/mini3/containimage:nginx2-2
+        name: containimage
         ports:
         - containerPort: 80
-        resources:
+        resources: 
           requests:
             cpu: 200m
           limits:
             cpu: 500m
 ---
-# nginx-service.yaml
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: web
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "instance"
     service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+  labels:
+    app: web
+  name: web
 spec:
-  selector:
-    app: nginx
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: web
   type: LoadBalancer

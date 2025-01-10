@@ -3,28 +3,32 @@ kind: ServiceAccount
 metadata:
   name: app-service-account
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::862016452072:role/AmazonEKSAutoNodeRole
+    eks.amazonaws.com/role-arn: "arn:aws:iam::862016452072:role/eks_mini3-test-temp-eks-auto-20250108150146488100000003"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deploy
+  creationTimestamp: null
   labels:
     app: app
+  name: app
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: app
+  strategy: {}
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: app
     spec:
       serviceAccountName: app-service-account
       containers:
-      - name: app
-        image: public.ecr.aws/g1o9h9r6/mini3/app:latest
+      - image: public.ecr.aws/g1o9h9r6/mini3/containimage:app2-2
+        name: app
+        resources: 
         ports:
         - containerPort: 8000
         resources:
@@ -36,15 +40,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app
+  creationTimestamp: null
   labels:
     app: app
+  name: app
 spec:
-  type: ClusterIP
   ports:
-  - name: http
+  - port: 8000
     protocol: TCP
-    port: 8000
     targetPort: 8000
   selector:
     app: app
+status:
+  loadBalancer: {}
